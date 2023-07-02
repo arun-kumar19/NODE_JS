@@ -1,0 +1,15 @@
+   .main-class-header {
+            background-color: bisque;
+            height: 50px;
+
+        }
+
+        .main-class-itemlist {
+            display: flex;
+        }  
+
+
+        .main-class-itemlist > div {
+            margin: 5px;
+            font-size: 20px;
+          }
