@@ -3,7 +3,10 @@ const express=require('express')
 const route=express.Router();
 const rootPath=require("../util/path");
 const productController=require('../controllers/products');
-route.use('/add-product',productController.getAddProduct);
+
+route.get('/add-product',productController.addProductPage);
+
+route.post('/add-product', productController.postAddProduct);
 
 module.exports=route;
 
