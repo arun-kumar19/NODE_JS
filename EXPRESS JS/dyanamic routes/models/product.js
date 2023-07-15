@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const products=require('../data/products.json');
+
 const p = path.join(
   path.dirname(process.mainModule.filename),
   'data',
@@ -40,5 +42,11 @@ module.exports = class Product {
 
   static fetchAll(cb) {
     getProductsFromFile(cb);
+  }
+
+  static findById(id,cb){
+
+      const product=products.find((item)=>item.id==id);
+      cb(product);
   }
 };
