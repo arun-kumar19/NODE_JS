@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const products=require('../data/products.json');
-
 const p = path.join(
   path.dirname(process.mainModule.filename),
   'data',
@@ -33,6 +31,7 @@ module.exports = class Product {
 
     this.id=Math.floor((Math.random() * 100) + 1).toString();
     getProductsFromFile(products => {
+      console.log('val=',this);
       products.push(this);
       fs.writeFile(p, JSON.stringify(products), err => {
         console.log(err);
@@ -45,8 +44,45 @@ module.exports = class Product {
   }
 
   static findById(id,cb){
-
-      const product=products.find((item)=>item.id==id);
+  
+    getProductsFromFile(Products=>{
+      const product=Products.find((item)=>item.id==id);
       cb(product);
+    })
   }
+
+  static updateProduct(editProductId,product) {
+    console.log(product);
+    getProductsFromFile(products => {
+      const newarray=products.filter((element)=>element.id !==editProductId)
+      newarray.push(product);
+      fs.writeFile(p, JSON.stringify(newarray), (err) => {
+        
+        if(err){
+          console.log('error during updating data in file');
+        }
+        else{
+          console.log('record updated successfully');
+        }
+
+      })
+    })
+  }
+
+static deleteproductbyID(id) {
+  getProductsFromFile(products => {
+    const newarray=products.filter((element)=>element.id !==id)
+    fs.writeFile(p, JSON.stringify(newarray), (err) => {
+      if(err){
+        console.log('error during delete product from file');
+      }
+      else{
+        console.log('record deleted successfully');
+      }
+
+    })
+  })
+  
+}
+
 };

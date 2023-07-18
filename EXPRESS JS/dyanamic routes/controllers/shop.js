@@ -76,11 +76,9 @@ exports.postCart = (req, res, next) => {
 
   })
  
- /* Product.fetchAll(products=>{
-    const jsonDataProduct=products.find((item)=>item.id===productId)
-    //console.log('Product Id=',jsonDataProduct.id, ' and price=',jsonDataProduct.price);*/
 res.render('shop/cart', {
   path: '/cart',
   pageTitle: 'Your Cart'
 });
 };
+

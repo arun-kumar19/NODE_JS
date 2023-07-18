@@ -1,3 +1,4 @@
+
 const fs=require("fs");
 const Product = require('./product');
 const path=require("path");
@@ -47,9 +48,6 @@ module.exports=class Cart{
             });
             }
 
-           /* const product=products.find((item)=>item.id===id)
-            fs.writeFile(p,product.id+' '+product.price,(err=>{
-                console.log(err);
-            }))
-            */
 };
+
+
