@@ -15,18 +15,8 @@ exports.getAddProduct = (req, res, next) => {
 exports.getEditProduct = (req, res, next) => {
 const editMode=req.query.edit;
 const id=req.params.prodId;
-
-if(!editMode){
-  Product.findById(id,product=>{
-      res.render('admin/edit-product', {
-        pageTitle: 'add Product',
-        path: '/admin/add-product',
-        editMode:false,
-        product:product,
-      })
-    })
-}
-  Product.findById(id).then((result)=>{
+if(editMode){
+Product.findById(id).then((result)=>{
 console.log(result[0][0]);
   res.render('admin/edit-product', {
     pageTitle: 'edit Product',
@@ -37,6 +27,7 @@ console.log(result[0][0]);
 }).catch(err=>{
   console.log(err);
 })
+}
 }
 
 exports.postAddProduct = (req, res, next) => {
