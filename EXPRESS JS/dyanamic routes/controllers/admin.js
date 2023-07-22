@@ -1,7 +1,6 @@
 
 const { json } = require('body-parser');
 const Product = require('../models/product');
-const fs=require("fs");
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -12,79 +11,85 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 
-exports.getEditProduct = (req, res, next) => {
+exports.getEditProduct = async (req, res, next) => {
 const editMode=req.query.edit;
 const id=req.params.prodId;
+try{
+const product=await Product.findByPk(id);
 if(editMode){
-Product.findById(id).then((result)=>{
-console.log(result[0][0]);
+console.log(product);
   res.render('admin/edit-product', {
     pageTitle: 'edit Product',
     path: '/admin/edit-product',
     editMode:editMode,
-    product:result[0][0],
+    product:product,
   });
-}).catch(err=>{
-  console.log(err);
-})
+}
+}catch(error){
+  console.log(error);
 }
 }
 
-exports.postAddProduct = (req, res, next) => {
+exports.postAddProduct = async (req, res, next) => {
+  try{
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const imageurl = req.body.imageurl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(title, imageUrl, description, price);
-  product.save().then((result, filedata)=>{
-    console.log("data saved successfully");
-  }).catch(err=>{
-    console.log('error product not saved in db')
-  });
+  console.log(title,' ',imageurl,' ',price,' ',description);
+  const result=await Product.create({title,price,imageurl,description});
+    console.log("data saved successfully=",result);
+  }catch(error){
+    console.error('error product not saved in db=',error);
+  };
   res.redirect('/');
 };
 
-exports.getProducts = (req, res, next) => {
-  Product.fetchAll().then(([rows,filedata])=>{
-    res.render('admin/products', {
-      prods: rows,
-      pageTitle: 'Shop',
-      path: '/admin/products'
-    });
-  }
-  ).catch(err=>{
+exports.getProducts =async function getProducts() {
+try{
+  const products=Product.findAll();
+  return products;
+}catch(error){
     console.log(err);
-  })
+  }
 }
 
 
-exports.postEditProduct = (req, res, next) => {
-  const editProductId=req.body.productId;  
-  const editedProduct={
-    id:editProductId,
-    title:req.body.title,
-    imageUrl:req.body.imageUrl,
-    price:req.body.price,
-    description:req.body.description,
+exports.postEditProduct = async (req, res, next) => {
+  
+  try{
+    const productid=req.body.productId;
+    const {title, price,imageurl,description}=req.body;
+    //console.log(title, '',productid);
+  const product=await Product.findByPk(productid);
+  if (!product) {
+    return res.status(404).json({ message: 'Product not found' });
   }
-  console.log(editedProduct);
-  Product.updateProduct(editProductId,editedProduct).then(result=>{
-    console.log('updated successfully');
-  }).catch(err=>{
-    console.log(err);
-  });
+  await product.update({title,price,imageurl,description})
+  console.log('product updated succcessfully');
+
+}catch(error){
+    console.log(error);
+  }
   res.redirect('/admin/products');
 
 };
 
 
-exports.deleteProduct = (req, res, next) => {
+exports.deleteProduct = async (req, res, next) => {
   const id=req.params.prodId;
-   Product.deleteproductbyID(id).then(result=>{
-    console.log("product deleted successfully");
-   }).catch(err=>{
+  try{
+      const product=await Product.findByPk(id);
+
+      if(!product){
+        res.status(404).json({message:'something went wrong. Please contact support team'});
+      }
+      
+      await product.destroy();
+    console.log("product deleted successfully")
+   }catch(err){
     console.log(err);
-   });
+   };
    res.redirect('/admin/products');
 };
 

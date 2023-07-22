@@ -10,9 +10,35 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-router.get('/', shopController.getIndex);
+router.get('/', async (req, res)=>{
+    try{
+    const fetchdata=await shopController.getProducts();
+  //    console.log('raw data=',fetchdata);
+    res.render('shop/index', {
+        prods: fetchdata,
+        pageTitle: 'Shop',
+        path: '/'
+      });
+    }catch(error){
+    console.error('Error fetching users:', error.message);
+    }
+});
 
-router.get('/products', shopController.getProducts);
+
+router.get('/products', async (req,res)=>{
+    try{
+        const fetchdata=await shopController.getProducts();
+//          console.log('raw data=',fetchdata);
+        res.render('shop/index', {
+            prods: fetchdata,
+            pageTitle: 'Shop',
+            path: '/'
+          });
+        }catch(error){
+        console.error('Error fetching users:', error.message);
+        }
+
+});
 
 router.get('/product/:productId', shopController.getProduct);
 

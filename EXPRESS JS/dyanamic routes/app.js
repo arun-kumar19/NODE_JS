@@ -2,7 +2,7 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const db=require('./util/database');
+const sequelize=require('./util/database');
 const errorController = require('./controllers/error');
 
 const app = express();
@@ -21,4 +21,8 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-app.listen(4000);
+//it sinks sequelize model with database. It creates table if it is not already created.
+
+    app.listen(4000);
+
+

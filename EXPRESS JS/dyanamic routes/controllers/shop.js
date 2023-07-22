@@ -1,19 +1,6 @@
 const Product = require('../models/product');
 const Cart = require('../models/cart');
 
-exports.getProducts = (req, res, next) => {
-  Product.fetchAll().then(([rows,filedata])=>{
-    res.render('shop/index', {
-      prods: rows,
-      pageTitle: 'Shop',
-      path: '/'
-    });
-  }
-  ).catch(err=>{
-    console.log(err);
-  })
-};
-
 exports.getIndex = (req, res, next) => {
   Product.fetchAll().then(([rows,filedata])=>{
     res.render('shop/index', {
@@ -47,18 +34,20 @@ exports.getCheckout = (req, res, next) => {
   });
 };
 
-exports.getProduct=(req,res,next)=>{
+exports.getProduct=async (req,res,next)=>{
   const id=req.params.productId;
-  Product.findById(id).then(([result,filedata])=>{
-    console.log(result[0]);
+  try{
+    const product=await Product.findByPk(id);
+    
   res.render('shop/product-detail', {
-    prods:result[0],
+    prods:product,
     path: '/product/'+id,
     pageTitle: 'Product Details'
   });
-}).catch(err=>{
+}catch(error){
   console.log('error fetching data=',err);
-}) 
+}
+
 }
 
 exports.getProductDetails = (req, res, next) => {
@@ -88,3 +77,15 @@ res.render('shop/cart', {
 });
 };
 
+
+
+
+exports.getProducts=async function getProducts() {
+  try {
+    const products = await Product.findAll();
+    return products;
+  } catch (error) {
+    console.error('Error fetching users:', error.message);
+    throw error;
+  }
+} 
