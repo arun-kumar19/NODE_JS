@@ -1,0 +1,384 @@
+<!doc type=html>
+<html>
+<head>
+    <title> hello</title>
+</head>
+<body>
+    <main>
+        <h1>Booking Appointment App</h1>
+        <div class="form-control"> 
+                <label for="title">name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <input type="text" name="name" id="name" value="<% if(editMode){ %> <%=product.name %> <%}%>" required>
+            </div>
+            <br>
+            <div class="form-control">
+                <label for="price">mobile no</label>
+                <input type="text" name="mobileno" id="mobileno" step="0.01" value="<% if(editMode){ %> <%=product.mobileno %> <%}%>" required>
+            </div>
+            <br>
+            <div class="form-control">
+                <label for="description">email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <input type="email" id="emailid" name="emailid" rows="5" required>
+                <input type="hidden" id="id">
+        
+            </div>
+            <br>
+            <button class="btn" type="submit" id="btn" onclick="AddProduct()">Add Product</button>
+            </main>
+            <h1>List of Users</h1>
+            <ul id="userList"></ul>
+   
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+let userList;
+
+    async function fetchUsers(){
+
+      async function editItem(event){
+
+            const id=event.target.id;
+            console.log('edit product fun1 called and id is=',event.target.id);
+          const username=document.getElementById('name');
+      const usermobileno=document.getElementById('mobileno');
+      const useremailid=document.getElementById('emailid');
+  
+        try{
+                const response=await axios.get(`edit-product/${id}`);
+                console.log('response=',response);
+    const user = response.data;
+    console.log('response=',user);
+        // Get the <ul> element to append the users
+        userList = document.getElementById('userList');
+        
+        // Render each user as a list item
+
+            document.getElementById('name').value=user.name;
+            document.getElementById('mobileno').value=user.mobileno;
+            document.getElementById('emailid').value=user.emailid;
+            document.getElementById('id').value=user.id;
+            document.getElementById('btn').innerHTML='Update Product';
+            document.getElementById('btn').onclick=UpdateProduct;
+            const li=event.target.parentElement;
+            console.log(li);
+            userList.removeChild(li);      
+            }
+            catch(error){
+                console.log('getting error while fetching data from server =',error);
+
+            }
+    }
+
+    async function UpdateProduct(){
+
+console.log('update product1 function called');
+const id=document.getElementById('id').value;
+const username=document.getElementById('name').value;
+const usermobileno=document.getElementById('mobileno').value;
+const useremailid=document.getElementById('emailid').value;
+const buttonText=document.getElementById('btn');
+
+const jsonData = {
+name: username,
+mobileno: usermobileno,
+emailid: useremailid
+};
+
+console.log('JSON=',jsonData);
+try{
+const response=await axios.put(`/update-product/${id}`,jsonData);
+  const user=response.data;
+  console.log('User Updated :',user);
+
+  userList = document.getElementById('userList');
+        
+        // Render each user as a list item
+          const listItem = document.createElement('li');
+            const editButton=document.createElement('button');
+            editButton.value='Edit';
+            editButton.id=user.id;
+            editButton.textContent='Edit';
+            editButton.onclick=editItem;
+            const deleteButton=document.createElement('button');
+            deleteButton.value='delete';
+            deleteButton.id=user.id;
+            deleteButton.onclick=deleteItem;
+            deleteButton.textContent='Delete';
+
+           const value= `${user.name} ${user.mobileno} ${user.emailid} `;
+           listItem.textContent=value;
+           listItem.appendChild(editButton);
+           listItem.appendChild(deleteButton);
+          userList.appendChild(listItem);
+          buttonText.innerHTML='Add Product';
+  alert('product updated successfully');
+
+document.getElementById('name').value='';
+document.getElementById('mobileno').value='';
+document.getElementById('emailid').value='';
+
+}catch(error){
+  console.log('error while udpating=',error);
+}
+}       
+
+async function deleteItem(event){
+    console.log('product deleted  fun1 successfully');
+      //  alert(event.target.id)
+            const id=event.target.id;
+            console.log('value of id=',id);
+            console.log(`Button ${id} was clicked.`);
+        try{
+      const response=axios.delete(`/delete-product/${id}`)
+        console.log('User Deleted :',response.data)
+        //alert('product deleted successfully');
+
+        if(response){
+          userList = document.getElementById('userList');
+            const li=event.target.parentElement;
+            console.log(li);
+
+            userList.removeChild(li);
+          
+        }
+        else{
+          console.log('something went wrong');
+        }
+        
+        }catch(error){
+                console.log('getting error while fetching data from server =',error);
+
+        }
+
+   } 
+   
+
+  // Log which button was clicked
+    
+        try {
+
+
+        // Make an API call to the server using Axios
+        const response = await axios.get('/loadContent');
+        console.log('load content=',response);
+        // Extract the list of users from the response data
+        const users = response.data;
+        // Get the <ul> element to append the users
+        userList = document.getElementById('userList');
+        
+        // Render each user as a list item
+        users.forEach((user) => {
+          const listItem = document.createElement('li');
+            const editButton=document.createElement('button');
+            editButton.value='Edit';
+            editButton.id=user.id;
+            editButton.textContent='Edit';
+            editButton.onclick=editItem;
+            const deleteButton=document.createElement('button');
+            deleteButton.value='delete';
+            deleteButton.id=user.id;
+            deleteButton.onclick=deleteItem;
+            deleteButton.textContent='Delete';
+
+           const value= `${user.name} ${user.mobileno} ${user.emailid} `;
+           listItem.textContent=value;
+           listItem.appendChild(editButton);
+           listItem.appendChild(deleteButton);
+          userList.appendChild(listItem);
+        });
+        
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+      
+    }
+    
+document.addEventListener('DOMContentLoaded',fetchUsers);
+
+async function AddProduct(){
+
+
+  async function editItem(event){
+
+const id=event.target.id;
+console.log('edit product fun2 called and id is=',event.target.id);
+const username=document.getElementById('name');
+const usermobileno=document.getElementById('mobileno');
+const useremailid=document.getElementById('emailid');
+
+try{
+    const response=await axios.get(`edit-product/${id}`);
+    console.log('response=',response);
+const user = response.data;
+console.log('response=',user);
+// Get the <ul> element to append the users
+userList = document.getElementById('userList');
+
+// Render each user as a list item
+
+document.getElementById('name').value=user.name;
+document.getElementById('mobileno').value=user.mobileno;
+document.getElementById('emailid').value=user.emailid;
+document.getElementById('id').value=user.id;
+document.getElementById('btn').innerHTML='Update Product';
+document.getElementById('btn').onclick=UpdateProduct;
+const li=event.target.parentElement;
+console.log(li);
+userList.removeChild(li);      
+}
+catch(error){
+    console.log('getting error while fetching data from server =',error);
+
+}
+}
+
+
+async function UpdateProduct(){
+
+console.log('update product2 function called');
+const id=document.getElementById('id').value;
+const username=document.getElementById('name').value;
+const usermobileno=document.getElementById('mobileno').value;
+const useremailid=document.getElementById('emailid').value;
+const buttonSubmit=document.getElementById('btn');
+
+const jsonData = {
+name: username,
+mobileno: usermobileno,
+emailid: useremailid
+};
+
+console.log('JSON=',jsonData);
+try{
+const response=await axios.put(`/update-product/${id}`,jsonData);
+  const user=response.data;
+  console.log('User Updated :',user);
+
+  userList = document.getElementById('userList');
+        
+        // Render each user as a list item
+          const listItem = document.createElement('li');
+            const editButton=document.createElement('button');
+            editButton.value='Edit';
+            editButton.id=user.id;
+            editButton.textContent='Edit';
+            editButton.onclick=editItem;
+            const deleteButton=document.createElement('button');
+            deleteButton.value='delete';document.getElementById('emailid').value='';
+            deleteButton.id=user.id;
+            deleteButton.onclick=deleteItem;
+            deleteButton.textContent='Delete';
+
+           const value= `${user.name} ${user.mobileno} ${user.emailid} `;
+           listItem.textContent=value;
+           listItem.appendChild(editButton);
+           listItem.appendChild(deleteButton);
+          userList.appendChild(listItem);
+          buttonSubmit.innerHTML='Add Product';
+          buttonSubmit.onclick=AddProduct;
+ 
+ 
+document.getElementById('name').value='';
+document.getElementById('mobileno').value='';
+document.getElementById('emailid').value='';
+alert('product updated successfully');
+}catch(error){
+  console.log('error while udpating=',error);
+}
+}       
+
+async function deleteItem(event){
+console.log('product deleted  fun2 successfully');
+//  alert(event.target.id)
+const id=event.target.id;
+console.log('value of id=',id);
+console.log(`Button ${id} was clicked.`);
+try{
+const response=axios.delete(`/delete-product/${id}`)
+console.log('User Deleted :',response.data)
+
+//alert('product deleted successfully');
+
+if(response){
+userList = document.getElementById('userList');
+const li=event.target.parentElement;
+console.log(li);
+
+userList.removeChild(li);
+
+}
+else{
+console.log('something went wrong');
+}
+
+}catch(error){
+    console.log('getting error while fetching data from server =',error);
+
+}
+
+} 
+
+
+     const name=document.getElementById('name').value;
+    const mobileno=document.getElementById('mobileno').value;
+    const emailid=document.getElementById('emailid').value;
+    const buttonText=document.getElementById('btn');
+    const jsonData = {
+      username: name,
+      usermobileno: mobileno,
+      useremailid: emailid
+    };
+        
+        try {
+        
+            // Make an API call to the server using Axios
+        const response = await axios.post('/add-product',jsonData);
+
+        console.log('server response post=',response.data);
+
+        if(response){
+        document.getElementById('name').value='';
+      document.getElementById('mobileno').value='';
+     document.getElementById('emailid').value='';
+        }
+      //  console.log(response);
+        //alert(response);
+        // Extract the list of users from the response data
+        const user = response.data;
+          console.log('id=',user.id);
+        //Get the <ul> element to append the users
+
+        const userList = document.getElementById('userList');
+
+        // Render each user as a list item
+          
+          const listItem = document.createElement('li');
+            const editButton=document.createElement('button');
+            editButton.value='Edit';
+            editButton.id=user.id;
+            editButton.textContent='Edit';
+            editButton.className='editItem';
+            editButton.onclick=editItem;
+            const deleteButton=document.createElement('button');
+            deleteButton.value='delete';
+            deleteButton.id=user.id;
+            deleteButton.onclick=deleteItem;
+            deleteButton.className='deleteItem';
+            deleteButton.textContent='Delete';
+
+           const value= `${user.name} ${user.mobileno} ${user.emailid} `;
+           listItem.textContent=value;
+           listItem.appendChild(editButton);
+           listItem.appendChild(deleteButton);
+          userList.appendChild(listItem);
+        
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    }
+
+    
+  </script>
+  </body>
+</html>
+

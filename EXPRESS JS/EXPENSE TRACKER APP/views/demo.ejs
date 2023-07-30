@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Client-Side Rendering Example</title>
+  
+</head>
+<body>
+  <h1>List of Users</h1> 
+  <button onclick="fetchUsers()">Show Product</button>
+  <ul id="userList"></ul>
+
+  <!-- Include Axios library -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    // Function to fetch users and render them on the page
+    async function fetchUsers() {
+      try {
+
+        // Make an API call to the server using Axios
+        const response = await axios.get('/api/users');
+
+        // Extract the list of users from the response data
+        const users = response.data;
+
+        // Get the <ul> element to append the users
+        const userList = document.getElementById('userList');
+
+        // Render each user as a list item
+        users.forEach((user) => {
+          const listItem = document.createElement('li');
+          listItem.textContent = user.name;
+          userList.appendChild(listItem);
+        });
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    }
+
+    // Call the fetchUsers function when the page is loaded
+   // document.addEventListener('DOMContentLoaded', fetchUsers);
+  </script>
+</body>
+</html>
