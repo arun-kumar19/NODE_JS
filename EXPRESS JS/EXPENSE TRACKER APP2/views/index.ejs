@@ -1,0 +1,382 @@
+<!DOCTYPE type="html">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker App</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+             Enter Expense Amount<input type="text" id="amount">
+            Enter Description<input type="text" id="description">
+            Choose Category<select name="Category" id="Category">
+        <option value="movie">movie</option>
+        <option value="vacation">vacation</option>
+        <option value="Grocery">Grocery</option>
+        <option value="shopping">shopping</option>
+        </select>
+        <input type="hidden" id="id">
+        <input type="submit" id="btn" value="Add Expense" onclick="AddExpense()">
+    </div>
+    <h1>Expenses Details</h1>
+    <ul id="userList"></ul>
+   
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+let userList;
+
+    async function fetchExpnese(){
+
+      async function editItem(event){
+
+            const id=event.target.id;
+  //          console.log('edit expense fun1 called and id is=',event.target.id);
+          const useramount=document.getElementById('amount');
+      const userdesc=document.getElementById('description');
+      const userCategory=document.getElementById('Category');
+  
+        try{
+                const response=await axios.get(`edit-expense/${id}`);
+    //            console.log('response=',response);
+    const user = response.data;
+    console.log('response=',user);
+        // Get the <ul> element to append the users
+        userList = document.getElementById('userList');
+        
+        // Render each user as a list item
+
+            document.getElementById('amount').value=user.amount;
+            document.getElementById('description').value=user.description;
+            document.getElementById('Category').value=user.Category;
+            document.getElementById('id').value=user.id;
+            document.getElementById('btn').value='Update Expense';
+            document.getElementById('btn').onclick=UpdateExpense;
+            const li=event.target.parentElement;
+      //      console.log(li);
+            userList.removeChild(li);      
+            }
+            catch(error){
+                console.log('getting error while fetching data from server =',error);
+
+            }
+    }
+
+    async function UpdateExpense(){
+
+//console.log('update expense1 function called');
+const id=document.getElementById('id').value;
+const useramount=document.getElementById('amount').value;
+const userdescription=document.getElementById('description').value;
+const userCategory=document.getElementById('Category').value;
+const buttonText=document.getElementById('btn');
+
+const jsonData = {
+amount: useramount,
+description: userdescription,
+Category: userCategory
+};
+
+//console.log('JSON=',jsonData);
+try{
+const response=await axios.put(`/update-expense/${id}`,jsonData);
+  const user=response.data;
+  //console.log('User Updated :',user);
+
+  userList = document.getElementById('userList');
+        
+        // Render each user as a list item
+          const listItem = document.createElement('li');
+            const editButton=document.createElement('button');
+            editButton.value='Edit';
+            editButton.id=user.id;
+            editButton.textContent='Edit';
+            editButton.onclick=editItem;
+            const deleteButton=document.createElement('button');
+            deleteButton.value='delete';
+            deleteButton.id=user.id;
+            deleteButton.onclick=deleteItem;
+            deleteButton.textContent='Delete';
+
+            const value= `Amount-  ${user.amount} Description-  ${user.description} Category-  ${user.Category} `;
+           listItem.textContent=value;
+           listItem.appendChild(editButton);
+           listItem.appendChild(deleteButton);
+          userList.appendChild(listItem);
+          buttonText.innerHTML='Add Product';
+  alert('expense updated successfully');
+
+document.getElementById('amount').value='';
+document.getElementById('description').value='';
+document.getElementById('Category').value='';
+document.getElementById('btn').value='Add Expense';
+
+}catch(error){
+  console.log('error while udpating=',error);
+}
+}       
+
+async function deleteItem(event){
+    //console.log('expense deleted  fun1 successfully');
+      //  alert(event.target.id)
+            const id=event.target.id;
+      //      console.log('value of id=',id);
+        //    console.log(`Button ${id} was clicked.`);
+        try{
+      const response=axios.delete(`/delete-expense/${id}`)
+        //console.log('User Deleted :',response.data)
+        //alert('expense deleted successfully');
+
+        if(response){
+          userList = document.getElementById('userList');
+            const li=event.target.parentElement;
+          //  console.log(li);
+
+            userList.removeChild(li);
+          
+        }
+        else{
+          console.log('something went wrong');
+        }
+        
+        }catch(error){
+                console.log('getting error while fetching data from server =',error);
+
+        }
+
+   } 
+   
+
+  // Log which button was clicked
+    
+        try {
+
+
+        // Make an API call to the server using Axios
+        const response = await axios.get('/loadContent');
+        //console.log('load content=',response);
+        // Extract the list of users from the response data
+        const users = response.data;
+        // Get the <ul> element to append the users
+        userList = document.getElementById('userList');
+        
+        // Render each user as a list item
+        users.forEach((user) => {
+          const listItem = document.createElement('li');
+            const editButton=document.createElement('button');
+            editButton.value='Edit';
+            editButton.id=user.id;
+            editButton.textContent='Edit';
+            editButton.onclick=editItem;
+            const deleteButton=document.createElement('button');
+            deleteButton.value='delete';
+            deleteButton.id=user.id;
+            deleteButton.onclick=deleteItem;
+            deleteButton.textContent='Delete';
+           const value= `Amount-  ${user.amount} Description-  ${user.description} Category-  ${user.Category} `;
+           listItem.textContent=value;
+           listItem.appendChild(editButton);
+           listItem.appendChild( document.createTextNode( '\u00A0' ) );
+           listItem.appendChild(deleteButton);
+          userList.appendChild(listItem);
+        });
+        
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+      
+    }
+    
+document.addEventListener('DOMContentLoaded',fetchExpnese);
+
+async function AddExpense(){
+
+  async function editItem(event){
+
+const id=event.target.id;
+//console.log('edit expense fun2 called and id is=',event.target.id);
+const useramount=document.getElementById('amount');
+const userdesc=document.getElementById('description');
+const userCategory=document.getElementById('Category');
+
+try{
+    const response=await axios.get(`edit-expense/${id}`);
+  //  console.log('response=',response);
+const user = response.data;
+//console.log('response=',user);
+// Get the <ul> element to append the users
+userList = document.getElementById('userList');
+
+// Render each user as a list item
+
+document.getElementById('amount').value=user.amount;
+document.getElementById('description').value=user.description;
+document.getElementById('Category').value=user.Category;
+document.getElementById('id').value=user.id;
+document.getElementById('btn').value='Update Expense';
+document.getElementById('btn').onclick=UpdateExpense;
+const li=event.target.parentElement;
+//console.log(li);
+userList.removeChild(li);      
+}
+catch(error){
+    console.log('getting error while fetching data from server =',error);
+
+}
+}
+
+
+async function UpdateExpense(){
+
+//console.log('update expense2 function called');
+const id=document.getElementById('id').value;
+const useramount=document.getElementById('amount').value;
+const userdescription=document.getElementById('description').value;
+const userCategory=document.getElementById('Category').value;
+const buttonSubmit=document.getElementById('btn');
+
+const jsonData = {
+amount: useramount,
+description: userdescription,
+Category: userCategory
+};
+
+//console.log('JSON=',jsonData);
+try{
+const response=await axios.put(`/update-expense/${id}`,jsonData);
+  const user=response.data;
+  //console.log('User Updated :',user);
+
+  userList = document.getElementById('userList');
+        
+        // Render each user as a list item
+          const listItem = document.createElement('li');
+            const editButton=document.createElement('button');
+            editButton.value='Edit';
+            editButton.id=user.id;
+            editButton.textContent='Edit';
+            editButton.onclick=editItem;
+            const deleteButton=document.createElement('button');
+            deleteButton.value='delete';document.getElementById('Category').value='';
+            deleteButton.id=user.id;
+            deleteButton.onclick=deleteItem;
+            deleteButton.textContent='Delete';
+
+            const value= `Amount-  ${user.amount} Description-  ${user.description} Category-  ${user.Category} `;
+           listItem.textContent=value;
+           listItem.appendChild(editButton);
+           listItem.appendChild( document.createTextNode( '\u00A0' ) );
+           listItem.appendChild(deleteButton);
+          userList.appendChild(listItem);
+          buttonSubmit.innerHTML='Add Product';
+          buttonSubmit.onclick=AddExpense;
+ 
+ 
+document.getElementById('amount').value='';
+document.getElementById('description').value='';
+document.getElementById('Category').value='';
+document.getElementById('btn').value='Add Expense';
+alert('expense updated successfully');
+}catch(error){
+  console.log('error while udpating=',error);
+}
+}       
+
+async function deleteItem(event){
+//console.log('expense deleted  fun2 successfully');
+//  alert(event.target.id)
+const id=event.target.id;
+//console.log('value of id=',id);
+//console.log(`Button ${id} was clicked.`);
+try{
+const response=axios.delete(`/delete-expense/${id}`)
+//console.log('User Deleted :',response.data)
+
+//alert('expense deleted successfully');
+
+if(response){
+userList = document.getElementById('userList');
+const li=event.target.parentElement;
+//console.log(li);
+
+userList.removeChild(li);
+
+}
+else{
+console.log('something went wrong');
+}
+
+}catch(error){
+    console.log('getting error while fetching data from server =',error);
+
+}
+
+} 
+
+
+     const amount=document.getElementById('amount').value;
+    const description=document.getElementById('description').value;
+    const Category=document.getElementById('Category').value;
+    const buttonText=document.getElementById('btn');
+    const jsonData = {
+      amount: amount,
+      description: description,
+      Category: Category
+    };
+        
+        try {
+        
+            // Make an API call to the server using Axios
+        const response = await axios.post('/add-expense',jsonData);
+
+  //      console.log('server response post=',response.data);
+
+        if(response){
+        document.getElementById('amount').value='';
+      document.getElementById('description').value='';
+     document.getElementById('Category').value='';
+     
+        }
+      //  console.log(response);
+        //alert(response);
+        // Extract the list of users from the response data
+        const user = response.data;
+          console.log('id=',user.id);
+        //Get the <ul> element to append the users
+
+        const userList = document.getElementById('userList');
+
+        // Render each user as a list item
+          
+          const listItem = document.createElement('li');
+            const editButton=document.createElement('button');
+            editButton.value='Edit';
+            editButton.id=user.id;
+            editButton.textContent='Edit';
+            editButton.className='editItem';
+            editButton.onclick=editItem;
+            const deleteButton=document.createElement('button');
+            deleteButton.value='delete';
+            deleteButton.id=user.id;
+            deleteButton.onclick=deleteItem;
+            deleteButton.className='deleteItem';
+            deleteButton.textContent='Delete';
+
+            const value= `Amount-  ${user.amount} Description-  ${user.description} Category-  ${user.Category} `;
+           listItem.textContent=value;
+           listItem.appendChild(editButton);
+           listItem.appendChild(deleteButton);
+          userList.appendChild(listItem);
+        
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    }
+
+    
+  </script>
+  </body>
+</html>
+
