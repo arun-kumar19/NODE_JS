@@ -16,9 +16,12 @@ router.get('/products', shopController.getProducts);
 
 router.get('/product/:productId', shopController.getProduct);
 
-//router.get('/cart', shopController.getCart);
+router.delete('/deleteitem/:prodid', shopController.deleteCartITem);
 
-//router.post('/cart', shopController.postCart);
+router.get('/cart', shopController.getCart);
+router.get('/loadcart', shopController.loadCart);
+
+router.post('/add-to-cart/:prodid', shopController.postCart);
 
 //router.get('/orders', shopController.getOrders);
 

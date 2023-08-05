@@ -34,3 +34,82 @@ exports.getProduct = (req, res, next) => {
 }).catch(err=>console.log('something went wrong=',err))
   
 };
+
+
+exports.getCart = (req, res, next) => {
+  req.user.getCart().then(cart=>{
+    return cart.getProducts().then(cartproducts=>{
+      //console.log('added product=',cartproducts);
+  res.render('shop/cart', {
+      prods: cartproducts,
+      pageTitle: 'cart',
+      path: '/cart'
+  })
+}).catch(err=>console.log(err));
+})
+}
+//).catch(err=>console.log('something went wrong=',err))
+//}
+  
+exports.postCart=(req,res,next)=>{
+  let fetchedCart;
+  const productid=req.params.prodid;
+  //console.log('product id=',productid);
+req.user.getCart().then(cart=>{
+  fetchedCart=cart;
+return cart.getProducts({where :{  id:productid} })
+}).then(products=>{
+  let product;
+  if(products.length>0){
+    product=products[0];
+  }
+
+  let newQuantity=1;
+
+  if(product){
+    product.cartitem.quantity=product.cartitem.quantity+1;
+    product.cartitem.save();
+    return res.redirect('/cart');
+  }
+
+  Product.findByPk(productid).then(product=>{
+  fetchedCart.addProduct(product,{through:{quantity:newQuantity}})
+  return res.redirect('/cart');
+}).catch(err=>console.log('something went wrong=',err))
+
+}).catch(err=>console.log('soemthing went wrong2=',err))
+
+}
+
+exports.deleteCartITem=async (req,res,next)=>{
+  let productid=req.params.prodid;
+  console.log('hello from server=',productid);
+  req.user.getCart().then(cart=>{
+   // console.log('cart=',cart);
+    cart.getProducts({where :{
+    id:productid
+    }}).then(product=>{
+      const result=cart.removeProduct(product)
+      if(result){
+        req.user.getCart().then(cart=>{
+          cart.getProducts().then(products=>{
+          res.json(products);
+          })
+        })
+      } 
+       if(!result){
+         console.log('something went wrong');
+      }
+      
+    }).catch(err=>console.log('error during fetching data=',err))
+
+  }).catch(err=>console.log('error fetching cart=',err));
+
+}
+
+
+
+exports.loadCart = (req, res, next) => {
+//console.log('hello');
+ return res.redirect('/cart');
+}
