@@ -23,15 +23,8 @@ async function deleteItem(event){
       console.log(`Button ${id-1} was clicked.`);
       try{
     const response=await axios.delete(`/deleteitem/${id}`)
-      if(response){
-        const response=await axios.get('/loadcart')
-        if(response){
-          console.log('page loaded successfully');
-        }
-        else{
-          console.log('something went wrong');
-        }
-      }
+    console.log('delete resonse from server=',response);
+        location.reload();
     
       }catch(error){
               console.log('getting error while fetching data from server =',error);

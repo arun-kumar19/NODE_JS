@@ -89,17 +89,25 @@ exports.deleteCartITem=async (req,res,next)=>{
     cart.getProducts({where :{
     id:productid
     }}).then(product=>{
-      const result=cart.removeProduct(product)
+      cart.removeProduct(product).then(result=>{
+      console.log('Result=',result);
       if(result){
         req.user.getCart().then(cart=>{
+          console.log('updatd cart=',cart);
           cart.getProducts().then(products=>{
+            console.log('updated products=',products);
+            if(products.length==0){
+              return res.json({message:'cart is emptry'});
+            }
+            else{
           res.json(products);
+            }
           })
         })
-      } 
-       if(!result){
-         console.log('something went wrong');
       }
+    }).catch(err=>{
+         console.log('something went wrong=',err);
+      })
       
     }).catch(err=>console.log('error during fetching data=',err))
 
@@ -107,9 +115,7 @@ exports.deleteCartITem=async (req,res,next)=>{
 
 }
 
-
-
 exports.loadCart = (req, res, next) => {
-//console.log('hello');
+console.log('hello');
  return res.redirect('/cart');
 }
